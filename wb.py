@@ -10,7 +10,7 @@ HEADERS = {
         'Host': 'm.weibo.cn',
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36'
     }
-UID = '5907193262'
+UID = '1867853927'
 
 def get_db():
     client = MongoClient('localhost', 27017)
@@ -31,7 +31,7 @@ def get_userinfo(uid):
     info = json.loads(userinfo.content).get("userInfo")
     print(info)
 
-    post = {"_id":uid,
+    post= {"_id":uid,
             "screen_name": info["screen_name"],
             "description": info["description"],
             "follow_count": info["follow_count"],
@@ -108,22 +108,28 @@ def get_comments(tid):
     if page < maxpage:
         get_comments(tid, page+1)
 
-def get_reposttimeline(tid,page):
+def get_reposttimeline(tid):
+    page = 1
     usercomments = requests.get("http://m.weibo.cn/api/statuses/repostTimeline?id=" + tid + "&page=" + str(page), headers=HEADERS)
     comments = json.loads(usercomments.content)
-    print(comments.get('data'))
+    #print(comments.get('data'))
 
     maxpage = comments.get('max')
+    print(maxpage)
 
-    if page < maxpage:
-        get_comments(tid, page + 1)
+    for pages in range(1,maxpage+1):
+        usercomments = requests.get("http://m.weibo.cn/api/statuses/repostTimeline?id=" + tid + "&page=" + str(pages), headers=HEADERS)
+        comments = json.loads(usercomments.content)
+        print(comments.get('data'))
 
 db = get_db()
 
-get_userinfo(UID)
+#get_userinfo(UID)
 #get_tweets(UID,"")
 #get_fans(UID,"")
 #get_followers(UID,"")
-#get_reposttimeline("4084099851139166",1)
+get_reposttimeline("4084099851139166")
+
+#get_comments("4085333429917678")
 
 
