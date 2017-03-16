@@ -20,14 +20,7 @@ def get_db():
 
 
 def get_userinfo(uid):
-    containerid = '100505' + uid
-    payload = {
-        'type':'uid',
-        'value':uid,
-        'containerid' :containerid
-    }
-
-    userinfo = requests.get(URL,params=payload,headers=HEADERS)
+    userinfo = requests.get("http://m.weibo.cn/container/getIndex?type=uid&value="+uid+"&containerid=100505"+uid,headers=HEADERS)
     info = json.loads(userinfo.content).get("userInfo")
     print(info)
 
@@ -43,15 +36,7 @@ def get_userinfo(uid):
     collection.insert(post)
 
 def get_fans(uid,page):
-    containerid = '231051_-_fans_-_' +uid
-    lfid = '100505'+uid
-    payload = {
-        'containerid': containerid,
-        'luicode': '10000011',
-        'lfid': lfid,
-        'page':page
-    }
-    userfans = requests.get(URL, params=payload, headers=HEADERS)
+    userfans = requests.get("http://m.weibo.cn/container/getIndex?containerid=231051_-_fans_-_"+uid+"&luicode=10000011&lfid=100505"+uid+"&featurecode=20000180&page="+str(page), headers=HEADERS)
     fans = json.loads(userfans.content)
     newpage = fans.get('cardlistInfo')['page']
     if newpage is not None:
@@ -60,15 +45,8 @@ def get_fans(uid,page):
         get_fans(UID, newpage)
 
 def get_followers(uid,page):
-    containerid = '231051_-_followers_-_' +uid
-    lfid = '100505'+uid
-    payload = {
-        'containerid': containerid,
-        'luicode': '10000011',
-        'lfid': lfid,
-        'page':page
-    }
-    userfollowers = requests.get(URL, params=payload, headers=HEADERS)
+
+    userfollowers = requests.get("http://m.weibo.cn/container/getIndex?containerid=231051_-_followers_-_"+uid+"&luicode=10000011&lfid=100505"+uid+"&featurecode=20000180&page="+str(page), headers=HEADERS)
     followers = json.loads(userfollowers.content)
 
     newpage = followers.get('cardlistInfo')['page']
@@ -78,15 +56,8 @@ def get_followers(uid,page):
         get_followers(UID,newpage)
 
 def get_tweets(uid,page):
-    containerid = '107603' + uid
-    payload = {
-        'type': 'uid',
-        'value': uid,
-        'containerid': containerid,
-        'page':page
-    }
 
-    usertweets = requests.get(URL, params=payload, headers=HEADERS)
+    usertweets = requests.get("http://m.weibo.cn/container/getIndex?type=uid&value="+uid+"&containerid=107603"+uid+"&page="+str(page), headers=HEADERS)
     tweets = json.loads(usertweets.content)
 
 
@@ -115,20 +86,22 @@ def get_reposttimeline(tid):
     #print(comments.get('data'))
 
     maxpage = comments.get('max')
-    print(maxpage)
 
     for pages in range(1,maxpage+1):
+        #yield  get_reposttimeline()
         usercomments = requests.get("http://m.weibo.cn/api/statuses/repostTimeline?id=" + tid + "&page=" + str(pages), headers=HEADERS)
-        comments = json.loads(usercomments.content)
+        comments = usercomments.json()
+        # if hasattr(comments, "data"):
+        #     print(comments.get('data'))
         print(comments.get('data'))
 
 db = get_db()
 
 #get_userinfo(UID)
-#get_tweets(UID,"")
+get_tweets(UID,"")
 #get_fans(UID,"")
 #get_followers(UID,"")
-get_reposttimeline("4084099851139166")
+#get_reposttimeline("4084099851139166")
 
 #get_comments("4085333429917678")
 
